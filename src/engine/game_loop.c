@@ -1,16 +1,18 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
-#include "cglm/cglm.h"
 #include "engine/window.h"
 #include "engine/game_loop.h"
 #include "engine/shader.h"
 #include "engine/texture.h"
 #include "engine/time.h"
 #include "data/list.h"
+#include "data/mat4.h"
+#include "data/vec3.h"
+#include "util/math.h"
 
 typedef struct GameState {
     bool running;
-    mat4 projection;
+    Mat4 projection;
     GLuint program;
     List *scene;
 } GameState;
@@ -63,12 +65,34 @@ void GameLoop_pollEvents()
     }
 }
 
+unsigned int vao;
+Mat4 model;
+
 void GameLoop_beforeStart()
 {
-    glm_perspective(glm_rad(45.0f), Window_aspect(), 0.1f, 100.0f, state.projection);
+    model = Mat4_translate(Vec3_init(200, 200, 0.0f));
+    model = Mat4_mul(model, Mat4_scale(Vec3_init(100, 100, 1)));
 
+    state.projection = Mat4_orthographic(0.0, Window_width(), Window_height(), 0.0, -1.0, 1.0);
     state.program = Shader_create_program("shaders/vertex.glsl", "shaders/fragment.glsl");
     state.scene = List_empty(NULL);
+
+    float vertices[9] = {
+        -1, -1, 0,
+         1, -1, 0,
+         0,  1, 0
+    };
+
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
 }
 
 void GameLoop_afterFinish()
@@ -79,6 +103,11 @@ void GameLoop_afterFinish()
 void GameLoop_update()
 {
     glUseProgram(state.program);
+    Shader_setUniformMat4(state.program, model, "model");
+    Shader_setUniformMat4(state.program, state.projection, "projection");
+
+    glBindVertexArray(vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     glUseProgram(0);
 }
 

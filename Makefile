@@ -1,5 +1,4 @@
 INCLUDEDIR=include
-LIBINCLUDEDIR=lib/include
 SRCDIR=src
 OUTDIR=build
 TESTDIR=test
@@ -8,12 +7,12 @@ OBJECTS=$(SOURCES:%.c=$(OUTDIR)/%.o)
 TARGET=main
 
 CC=gcc
-CFLAGS=-Wall -ggdb --std=c11 -I$(INCLUDEDIR) -I$(LIBINCLUDEDIR)
-LDFLAGS=-lSDL2 -lSDL2_image -lm -lOpenGL -L ./lib
+CFLAGS=-Wall -ggdb --std=c11 -I$(INCLUDEDIR)
+LDFLAGS=-lSDL2 -lSDL2_image -lm -lOpenGL
 
 .PHONY: clean run
 
-all: $(OBJECTS) $(TARGET) tests
+all: $(OBJECTS) $(TARGET)
 
 run: all
 	$(OUTDIR)/$(TARGET)

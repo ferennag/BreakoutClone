@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glad/glad.h>
-#include <cglm/cglm.h>
+#include "data/mat4.h"
 
 #define BUFFER_SIZE 1024
 
@@ -108,8 +108,8 @@ void Shader_use(const GLuint shader) {
     glUseProgram(shader);
 }
 
-void Shader_setUniformMat4(const GLuint program, const mat4 matrix, const char *name)
+void Shader_setUniformMat4(const GLuint program, const Mat4 matrix, const char *name)
 {
     GLuint location = glGetUniformLocation(program, name);
-    glUniformMatrix4fv(location, 1, GL_FALSE, (float *) matrix);
+    glUniformMatrix4fv(location, 1, GL_TRUE, (float *) matrix.m);
 }

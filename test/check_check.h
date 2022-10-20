@@ -5,5 +5,7 @@
 
 Suite *vec2_suite(void);
 Suite *vec3_suite(void);
+Suite *mat3_suite(void);
+Suite *mat4_suite(void);
 
 #endif

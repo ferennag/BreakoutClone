@@ -6,7 +6,7 @@ typedef union Vec2 {
     struct {
         float x, y;
     };
-    float xyz[2];
+    float xy[2];
 } Vec2;
 
 Vec2 Vec2_init(float x, float y);

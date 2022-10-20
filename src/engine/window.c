@@ -85,3 +85,13 @@ float Window_aspect()
 {
     return (float)windowContext.width / (float)windowContext.height;
 }
+
+unsigned int Window_width()
+{
+    return windowContext.width;
+}
+
+unsigned int Window_height()
+{
+    return windowContext.height;
+}

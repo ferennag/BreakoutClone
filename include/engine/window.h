@@ -4,3 +4,5 @@ void Window_create(const unsigned int width, const unsigned int height, const ch
 void Window_close();
 void Window_update();
 float Window_aspect();
+unsigned int Window_width();
+unsigned int Window_height();
