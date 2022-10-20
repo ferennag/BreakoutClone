@@ -5,6 +5,7 @@
 #include "engine/shader.h"
 #include "engine/texture.h"
 #include "engine/time.h"
+#include "engine/sprite.h"
 #include "data/list.h"
 #include "data/mat4.h"
 #include "data/vec3.h"
@@ -65,34 +66,16 @@ void GameLoop_pollEvents()
     }
 }
 
-unsigned int vao;
-Mat4 model;
+Sprite sprite;
+GLuint spriteTexture;
 
 void GameLoop_beforeStart()
 {
-    model = Mat4_translate(Vec3_init(200, 200, 0.0f));
-    model = Mat4_mul(model, Mat4_scale(Vec3_init(100, 100, 1)));
-
     state.projection = Mat4_orthographic(0.0, Window_width(), Window_height(), 0.0, -1.0, 1.0);
-    state.program = Shader_create_program("shaders/vertex.glsl", "shaders/fragment.glsl");
+    state.program = Shader_create_program("shaders/sprite_vertex.glsl", "shaders/sprite_fragment.glsl");
     state.scene = List_empty(NULL);
-
-    float vertices[9] = {
-        -1, -1, 0,
-         1, -1, 0,
-         0,  1, 0
-    };
-
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
+    sprite = Sprite_create(state.program);
+    spriteTexture = Texture_load("textures/awesomeface.png");
 }
 
 void GameLoop_afterFinish()
@@ -102,13 +85,9 @@ void GameLoop_afterFinish()
 
 void GameLoop_update()
 {
-    glUseProgram(state.program);
-    Shader_setUniformMat4(state.program, model, "model");
-    Shader_setUniformMat4(state.program, state.projection, "projection");
-
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glUseProgram(0);
+    glUseProgram(sprite.shader);
+    Shader_setUniformMat4(sprite.shader, state.projection, "projection");
+    Sprite_draw(sprite, spriteTexture, Vec2_init(200, 200), Vec2_init(300, 400), 45.0f, Vec3_init(0, 1, 0));
 }
 
 void GameLoop_run()
