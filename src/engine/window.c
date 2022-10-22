@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <glad/glad.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "engine/window.h"
 
 typedef struct WindowContext {
@@ -26,6 +27,11 @@ void Window_create(const unsigned int width, const unsigned int height, const ch
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) {
         printf("Unable to initialize SDL subsystems: %s\n", SDL_GetError());
+        fatal_exit();
+    }
+
+    if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) < 0) {
+        printf("Unable to initialize SDL Image subsystem: %s\n", SDL_GetError());
         fatal_exit();
     }
 

@@ -13,7 +13,7 @@ void Texture_free(void *obj)
     free(texture);
 }
 
-GLuint Texture_load(const char *path) 
+Texture Texture_load(const char *path, const bool hasAlpha) 
 {
     if (!cache) {
         cache = HashMap_empty(Texture_free);
@@ -32,11 +32,13 @@ GLuint Texture_load(const char *path)
         return 0;
     }
 
+    int colorMode = hasAlpha ? GL_RGBA : GL_RGB;
     GLuint *texture = (GLuint *) malloc(sizeof(GLuint));
     glGenTextures(1, texture);
     glBindTexture(GL_TEXTURE_2D, *texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->w, img->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->pixels);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexImage2D(GL_TEXTURE_2D, 0, colorMode, img->w, img->h, 0, colorMode, GL_UNSIGNED_BYTE, img->pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     SDL_FreeSurface(img);

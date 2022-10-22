@@ -6,6 +6,9 @@
 #include "engine/texture.h"
 #include "engine/time.h"
 #include "engine/sprite.h"
+#include "engine/game_object.h"
+#include "engine/level.h"
+#include "engine/renderer.h"
 #include "data/list.h"
 #include "data/mat4.h"
 #include "data/vec3.h"
@@ -13,13 +16,13 @@
 
 typedef struct GameState {
     bool running;
-    Mat4 projection;
-    GLuint program;
     List *scene;
+    GameLevel *level;
+    Texture background;
 } GameState;
 
 static GameState state;
-static bool running = true;
+static Renderer *renderer;
 
 void GameLoop_handleKeydown(SDL_Event *e)
 {
@@ -27,7 +30,7 @@ void GameLoop_handleKeydown(SDL_Event *e)
     {
         case SDLK_q:
         case SDLK_ESCAPE:
-            running = false;
+            state.running = false;
             break;
 
         default:
@@ -49,7 +52,7 @@ void GameLoop_pollEvents()
         switch (e.type)
         {
             case SDL_QUIT:
-                running = false;
+                state.running = false;
                 break;
 
             case SDL_KEYDOWN:
@@ -66,28 +69,26 @@ void GameLoop_pollEvents()
     }
 }
 
-Sprite sprite;
-GLuint spriteTexture;
-
 void GameLoop_beforeStart()
 {
-    state.projection = Mat4_orthographic(0.0, Window_width(), Window_height(), 0.0, -1.0, 1.0);
-    state.program = Shader_create_program("shaders/sprite_vertex.glsl", "shaders/sprite_fragment.glsl");
+    state.running = true;
     state.scene = List_empty(NULL);
-    sprite = Sprite_create(state.program);
-    spriteTexture = Texture_load("textures/awesomeface.png");
+    state.level = GameLevel_load("levels/level1.txt", Window_width(), Window_height() / 2);
+    state.background = Texture_load("textures/background.jpg", false);
+    renderer = Renderer_create();
 }
 
 void GameLoop_afterFinish()
 {
     List_destroy(state.scene);
+    GameLevel_destroy(state.level);
+    Renderer_destroy(renderer);
 }
 
 void GameLoop_update()
 {
-    glUseProgram(sprite.shader);
-    Shader_setUniformMat4(sprite.shader, state.projection, "projection");
-    Sprite_draw(sprite, spriteTexture, Vec2_init(200, 200), Vec2_init(300, 400), 45.0f, Vec3_init(0, 1, 0));
+    GameLevel_draw(renderer, state.level);
+    Renderer_drawTexture(renderer, state.background, Vec2_init(0, 0), Vec2_init(Window_width(), Window_height()), 0.0f, Vec3_init(1, 1, 1));
 }
 
 void GameLoop_run()
@@ -96,7 +97,7 @@ void GameLoop_run()
     Uint64 frameStart = 0;
     
     GameLoop_beforeStart();
-    while(running) {
+    while(state.running) {
         frameStart = Time_getTicks();
 
         GameLoop_pollEvents();
