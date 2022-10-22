@@ -105,8 +105,9 @@ void GameLoop_afterFinish()
     Texture_destroyAll();
 }
 
-void GameLoop_update()
+void GameLoop_update(Uint64 dtMs)
 {
+    GameLoop_handleInput(dtMs);
     Renderer_drawTexture(renderer, state.background, Vec2_init(0, 0), Vec2_init(Window_width(), Window_height()), 0.0f, Vec3_init(1, 1, 1));
     GameLevel_draw(state.level, renderer);
     Renderer_draw(renderer, player);
@@ -125,11 +126,10 @@ void GameLoop_run()
         lastFrame = frameStart;
 
         GameLoop_pollEvents(dt);
-        GameLoop_handleInput(dt);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GameLoop_update();
+        GameLoop_update(dt);
         Window_update();
 
         Uint64 frameTime = Time_getTicks() - frameStart;
