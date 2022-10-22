@@ -32,3 +32,4 @@ Vec3 Vec3_cross(const Vec3 a, const Vec3 b);
 float Vec3_magnitude(const Vec3 a);
 Vec3 Vec3_negate(const Vec3 a);
 Vec3 Vec3_normalize(const Vec3 a);
+Vec3 Vec3_clamp(const Vec3 a, const Vec3 min, const Vec3 max);

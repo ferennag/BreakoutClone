@@ -13,6 +13,7 @@ typedef enum Keycode {
     D,
     W,
     S,
+    SPACE,
     Q,
     ESC
 } Keycode;

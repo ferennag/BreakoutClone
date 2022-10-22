@@ -1,19 +1,20 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "engine/window.h"
-#include "engine/game_loop.h"
 #include "engine/shader.h"
 #include "engine/texture.h"
 #include "engine/time.h"
 #include "engine/sprite.h"
 #include "engine/game_object.h"
-#include "engine/level.h"
 #include "engine/renderer.h"
 #include "engine/keyboard.h"
 #include "data/list.h"
 #include "data/mat4.h"
 #include "data/vec3.h"
 #include "util/math.h"
+#include "level.h"
+#include "game_loop.h"
+#include "ball.h"
 
 typedef struct GameState {
     bool running;
@@ -25,8 +26,9 @@ typedef struct GameState {
 static GameState state;
 static Renderer *renderer;
 static GameObject *player;
+static Ball *ball;
 
-void GameLoop_handleInput(Uint64 dtMs)
+void GameLoop_handleInput(Time64 dtMs)
 {
     if (Keyboard_isPressed(ESC) || Keyboard_isPressed(Q)) {
         state.running = false;
@@ -36,22 +38,34 @@ void GameLoop_handleInput(Uint64 dtMs)
     if (Keyboard_isPressed(LEFT) && player->position.x >= 0.0f) {
         const Vec2 velocity = Vec2_divs(Vec2_muls(player->velocity, dtMs), 500.0f);
         player->position.x -= velocity.x;
+
+        if (ball->stuck) {
+            ball->object->position.x -= velocity.x;
+        }
     }
 
     if (Keyboard_isPressed(RIGHT) && player->position.x <= (Window_width() - player->size.x)) {
         const Vec2 velocity = Vec2_divs(Vec2_muls(player->velocity, dtMs), 500.0f);
         player->position.x += velocity.x;
+
+        if (ball->stuck) {
+            ball->object->position.x += velocity.x;
+        }
+    }
+
+    if (Keyboard_isPressed(SPACE)) {
+        ball->stuck = false;
     }
 }
 
-void GameLoop_handleMouseMotion(SDL_Event *e, Uint64 dtMs)
+void GameLoop_handleMouseMotion(SDL_Event *e, Time64 dtMs)
 {
     // const float sensitivity = 0.1f;
     // float dx = e->motion.xrel * sensitivity;
     // float dy = e->motion.yrel * sensitivity;
 }
 
-void GameLoop_pollEvents(Uint64 dtMs)
+void GameLoop_pollEvents(Time64 dtMs)
 {
     SDL_Event e;
     while(SDL_PollEvent(&e)) {
@@ -79,6 +93,30 @@ void GameLoop_pollEvents(Uint64 dtMs)
     }
 }
 
+void GameLoop_checkBall()
+{
+    if (ball->object->position.y > Window_height() + 50) {
+        Ball_reset(ball, player, Vec2_init(100.0f, -350.0f));
+    }
+}
+
+void GameLoop_collisionDetection()
+{
+    Node *it = state.level->bricks->head->next;
+
+    while(it != state.level->bricks->tail) {
+        GameObject *brick = (GameObject *) it->data;
+
+        if (!brick->isDestroyed && Ball_checkCollision(ball, brick)) {
+            if(!brick->isSolid) {
+                brick->isDestroyed = true;
+            }
+        }
+
+        it = it->next;
+    }
+}
+
 void GameLoop_beforeStart()
 {
     state.running = true;
@@ -95,10 +133,17 @@ void GameLoop_beforeStart()
 
     player = GameObject_create(playerPos, playerSize, Vec3_ones(), Texture_load("textures/paddle.png", true));
     player->velocity = Vec2_init(500.0f, 0.0f);
+
+    float ballRadius = 12.5f;
+    Vec2 ballVelocity = Vec2_init(100.0f, -350.0f);
+    ball = Ball_create(Vec2_zeroes(), ballRadius, ballVelocity);
+    Ball_resetPosition(ball, player);
+    ball->stuck = true;
 }
 
 void GameLoop_afterFinish()
 {
+    Ball_destroy(ball);
     List_destroy(state.scene);
     GameLevel_destroy(state.level);
     Renderer_destroy(renderer);
@@ -108,21 +153,26 @@ void GameLoop_afterFinish()
 void GameLoop_update(Uint64 dtMs)
 {
     GameLoop_handleInput(dtMs);
+    Ball_move(ball, dtMs, Window_width(), Window_height());
+    GameLoop_checkBall();
+    GameLoop_collisionDetection();
+
     Renderer_drawTexture(renderer, state.background, Vec2_init(0, 0), Vec2_init(Window_width(), Window_height()), 0.0f, Vec3_init(1, 1, 1));
     GameLevel_draw(state.level, renderer);
     Renderer_draw(renderer, player);
+    Renderer_draw(renderer, ball->object);
 }
 
 void GameLoop_run()
 {
-    Uint64 msPerFrame = 1000 / 60;
-    Uint64 frameStart = 0;
-    Uint64 lastFrame = 0.0f;
+    Time64 msPerFrame = 1000 / 60;
+    Time64 frameStart = 0;
+    Time64 lastFrame = 0.0f;
     
     GameLoop_beforeStart();
     while(state.running) {
         frameStart = Time_getTicks();
-        Uint64 dt = frameStart - lastFrame;
+        Time64 dt = frameStart - lastFrame;
         lastFrame = frameStart;
 
         GameLoop_pollEvents(dt);
@@ -132,7 +182,7 @@ void GameLoop_run()
         GameLoop_update(dt);
         Window_update();
 
-        Uint64 frameTime = Time_getTicks() - frameStart;
+        Time64 frameTime = Time_getTicks() - frameStart;
         dt = frameTime;
         if (frameTime < msPerFrame) {
             Time_delay(msPerFrame - frameTime);

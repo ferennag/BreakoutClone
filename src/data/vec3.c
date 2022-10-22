@@ -1,5 +1,6 @@
 #include <string.h>
 #include <math.h>
+#include "util/math.h"
 #include "util/float.h"
 #include "data/vec3.h"
 
@@ -153,4 +154,13 @@ Vec3 Vec3_normalize(const Vec3 a)
 {
     float magnitude = Vec3_magnitude(a);
     return Vec3_divs(a, magnitude);
+}
+
+Vec3 Vec3_clamp(const Vec3 a, const Vec3 min, const Vec3 max)
+{
+    Vec3 result = Vec3_zeroes();
+    result.x = clamp(a.x, min.x, max.x);
+    result.y = clamp(a.y, min.y, max.y);
+    result.z = clamp(a.z, min.z, max.z);
+    return result;
 }

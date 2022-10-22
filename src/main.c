@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "engine/window.h"
-#include "engine/game_loop.h"
+#include "game_loop.h"
 
 int main() 
 {

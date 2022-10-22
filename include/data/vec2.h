@@ -32,3 +32,4 @@ float Vec2_cross(const Vec2 a, const Vec2 b);
 float Vec2_magnitude(const Vec2 a);
 Vec2 Vec2_negate(const Vec2 a);
 Vec2 Vec2_normalize(const Vec2 a);
+Vec2 Vec2_clamp(const Vec2 a, const Vec2 min, const Vec2 max);

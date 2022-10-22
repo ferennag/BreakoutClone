@@ -27,3 +27,14 @@ void GameObject_destroy(void *obj)
 
     free((GameObject *) obj);
 }
+
+bool GameObject_checkCollision(const GameObject *one, const GameObject *two)
+{
+    bool collisionX = one->position.x + one->size.x >= two->position.x && 
+        two->position.x + two->size.x >= one->position.x;
+
+    bool collisionY = one->position.y + one->size.y >= two->position.y && 
+        two->position.y + two->size.y >= one->position.y;
+    
+    return collisionX && collisionY;
+}

@@ -16,3 +16,4 @@ typedef struct GameObject {
 
 GameObject *GameObject_create(const Vec2 position, const Vec2 size, const Vec3 color, Texture texture);
 void GameObject_destroy(void *obj);
+bool GameObject_checkCollision(const GameObject *one, const GameObject *two);

@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include "engine/time.h"
 
-unsigned long long Time_getTicks()
+Time64 Time_getTicks()
 {
     return SDL_GetTicks64();
 }

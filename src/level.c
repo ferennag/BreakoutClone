@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "engine/level.h"
+#include "level.h"
 #include "engine/texture.h"
 #include "engine/game_object.h"
 #include "data/list.h"
@@ -134,7 +134,9 @@ void GameLevel_draw(const GameLevel *level, const Renderer *renderer)
     Node *it = List_first(level->bricks);
     while (it != level->bricks->tail) {
         GameObject *object = (GameObject *) it->data;
-        Renderer_draw(renderer, object);
+        if (!object->isDestroyed) {
+            Renderer_draw(renderer, object);
+        }
         it = it->next;
     }
 }

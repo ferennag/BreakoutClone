@@ -29,6 +29,8 @@ Keycode Keyboard_translate(const SDL_Keycode sdlKeycode)
             return W;
         case SDLK_s:
             return S;
+        case SDLK_SPACE:
+            return SPACE;
         case SDLK_q:
             return Q;
         case SDLK_ESCAPE:

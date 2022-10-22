@@ -1,5 +1,6 @@
 #include <string.h>
 #include <math.h>
+#include "util/math.h"
 #include "util/float.h"
 #include "data/vec2.h"
 
@@ -136,4 +137,12 @@ Vec2 Vec2_normalize(const Vec2 a)
 {
     float magnitude = Vec2_magnitude(a);
     return Vec2_divs(a, magnitude);
+}
+
+Vec2 Vec2_clamp(const Vec2 a, const Vec2 min, const Vec2 max)
+{
+    Vec2 result = Vec2_zeroes();
+    result.x = clamp(a.x, min.x, max.x);
+    result.y = clamp(a.y, min.y, max.y);
+    return result;
 }
