@@ -7,3 +7,4 @@ typedef GLuint Texture;
 
 Texture Texture_load(const char *path, const bool hasAlpha);
 void Texture_destroy(GLuint *texture);
+void Texture_destroyAll();

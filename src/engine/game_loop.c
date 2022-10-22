@@ -83,6 +83,7 @@ void GameLoop_afterFinish()
     List_destroy(state.scene);
     GameLevel_destroy(state.level);
     Renderer_destroy(renderer);
+    Texture_destroyAll();
 }
 
 void GameLoop_update()

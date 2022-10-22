@@ -52,3 +52,10 @@ void Texture_destroy(GLuint *texture)
 {
     glDeleteTextures(1, texture);
 }
+
+void Texture_destroyAll()
+{
+    if (NULL != cache) {
+        HashMap_destroy(cache);
+    }
+}
