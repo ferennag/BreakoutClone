@@ -129,7 +129,7 @@ void GameLevel_destroy(GameLevel *level)
     free(level);
 }
 
-void GameLevel_draw(const Renderer *renderer, const GameLevel *level)
+void GameLevel_draw(const GameLevel *level, const Renderer *renderer)
 {
     Node *it = List_first(level->bricks);
     while (it != level->bricks->tail) {

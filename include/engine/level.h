@@ -9,4 +9,4 @@ typedef struct GameLevel {
 
 GameLevel *GameLevel_load(const char *file, unsigned int width, unsigned int height);
 void GameLevel_destroy(GameLevel *level);
-void GameLevel_draw(const Renderer *renderer, const GameLevel *level);
+void GameLevel_draw(const GameLevel *level, const Renderer *renderer);
